@@ -11,3 +11,12 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.playedCards{
+  min-height: 160px;
+  background: brown;
+}
+
+.boardCards, .playedCards{
+  padding: 20px;
+}
