@@ -1,34 +1,27 @@
 import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
 
 
 const PlayedCards = (props) => {
 
     return (
-        <div className="playedCards">
+      <div className='playedCards'>
+        <Grid container>
+        {
+          props.player.playedCards.map((card) => (
 
-          <Grid container spacing={2}>
-          {
-            props.player.playedCards.map((card) => (
+            <Grid key={card.id} xs={4} lg={4} item sx={{ p: 2 }}>
+            <img 
+              className='cardImage'
+              src={process.env.PUBLIC_URL+'/images/deck/'+card.id+'.png'} alt="React Logo" 
+            />
+          </Grid>
 
-            <Grid key={card.id} item>
-              <Paper
-                sx={{
-                  height: 140,
-                  width: 100,
-                  backgroundImage: `url(${process.env.PUBLIC_URL}/images/deck/`+ card.id + `.png)`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center'
-                }}
-              />
-            </Grid>
-
-            ))
-          }
-        </Grid>
+          ))
+        }
+      </Grid>
+    </div>
 
 
-        </div>
     );
   
   };

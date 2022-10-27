@@ -13,10 +13,31 @@ code {
 }
 
 .playedCards{
-  min-height: 160px;
+  min-height: 200px;
   background: brown;
 }
 
-.boardCards, .playedCards{
-  padding: 20px;
+.difuminate{
+  opacity: 40%;
+}
+
+.commandControl button{
+  width: 100%;
+  height: 100%;
+}
+
+.cardImage{
+  width: 100%;
+}
+
+.log{
+  min-height: 400px;
+}
+
+.containerConditionalComponents{
+  width: 100%;
+}
+
+.commandControl{
+  min-height: 160px;
 }

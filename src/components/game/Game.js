@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import BoardCards from '../boardCards/BoardCards';
 import PlayedCards from '../playedCards/PlayedCards';
+import Log from '../log/Log';
 import Button from '@mui/material/Button';
 import Hand from '../../clases/Hand';
+import CommandControl from '../commandControl/CommandControl';
+import Grid from '@mui/material/Grid';
 
 const Game = (props) => {
 	
@@ -25,7 +28,9 @@ const Game = (props) => {
 	const [handData, setHandData] = useState({
 		hand: null,
 		turn: null,
+		tie: null,
 		lastCardPlayed: null,
+		envido: null,
 	}
 	);
 
@@ -37,24 +42,15 @@ const Game = (props) => {
 	);
 
 	function setGameDataLoaded(){
-		setGameData(gameData => {
-      return { ...gameData, loaded: true }
-    });
+		setGameData(gameData => ({...gameData, loaded: true}));
 	}
 
 	function setHandPlayers(handCards){
-		setPlayer1(player1 => ({
-			 ...player1, cards: handCards[0], roundsWon: 0, handPoints: 0, playedCards: [] 
-		}));
-		setPlayer2(player2 => ({
-			...player2, cards: handCards[1], roundsWon: 0, handPoints: 0, playedCards: []
-		}));
-
+		setPlayer1(player1 => ({...player1, cards: handCards[0], roundsWon: 0, handPoints: 0, playedCards: []}));
+		setPlayer2(player2 => ({...player2, cards: handCards[1], roundsWon: 0, handPoints: 0, playedCards: []}));
 	}
 
 	function setHandInfo(){
-		
-		//ESTO PASA DESPUES DEL UPDATE
 		let handDataP = {};
 
 		if(handData.hand === null){
@@ -65,9 +61,7 @@ const Game = (props) => {
 			handDataP = player1;
 		}
 
-		setHandData(handData => {
-			return { ...handData, hand: handDataP, turn: handDataP, lastCardPlayed: handDataP}
-		});
+		setHandData(handData => ({...handData, hand: handDataP, turn: handDataP, tie: 0, lastCardPlayed: handDataP}));
 	}
 
 	function initGame(){
@@ -83,12 +77,17 @@ const Game = (props) => {
 	}
 
 	function playCard(card, player){
-		updatePlayedCards(card, player)
+		
+		const playedCard = player.playedCards.find(el => el.id === card.id);
+		
+		if(!playedCard){
+			updatePlayedCards(card, player)
 
-		setRoundWon(card, player)
- 				
-		if(player1.roundsWon < 2 && player2.roundsWon < 2){
-			changePlayerTurn(card, player)
+			setRoundWon(card, player)
+					
+			if(player1.roundsWon < 2 && player2.roundsWon < 2){
+				changePlayerTurn(card, player)
+			}
 		}
 		
 	}
@@ -113,25 +112,25 @@ const Game = (props) => {
 			lastCard = player2.playedCards.slice(-1)[0]
 			bestCardData = bestCard(card, lastCard)
 			if(bestCardData === card){
-				setPlayer1(player1 => {
-					return { ...player1, roundsWon: player1.roundsWon+1}
-				});
+				setPlayer1(player1 => ({...player1, roundsWon: player1.roundsWon+1}));
+			}else if(bestCardData === 'tie'){
+				setHandData(handData => ({...handData, tie: handData.tie + 1}));
+				setPlayer1(player1 => ({...player1, roundsWon: player1.roundsWon+1}));
+				setPlayer2(player2 => ({...player2, roundsWon: player2.roundsWon+1}));
 			}else{
-				setPlayer2(player2 => {
-					return { ...player2, roundsWon: player2.roundsWon+1}
-				});
+				setPlayer2(player2 => ({...player2, roundsWon: player2.roundsWon+1}));
 			}
 		}else{
 			lastCard = player1.playedCards.slice(-1)[0]
 			bestCardData = bestCard(card, lastCard)
 			if(bestCardData === card){
-				setPlayer2(player2 => {
-					return { ...player2, roundsWon: player2.roundsWon+1}
-				});
+				setPlayer2(player2 => ({...player2, roundsWon: player2.roundsWon+1}));
+			}else if(bestCardData === 'tie'){
+				setHandData(handData => ({...handData, tie: handData.tie + 1}));
+				setPlayer1(player1 => ({...player1, roundsWon: player1.roundsWon+1}));
+				setPlayer2(player2 => ({...player2, roundsWon: player2.roundsWon+1}));
 			}else{
-				setPlayer1(player1 => {
-					return { ...player1, roundsWon: player1.roundsWon+1}
-				});
+				setPlayer1(player1 => ({...player1, roundsWon: player1.roundsWon+1}));
 			}
 		}
 
@@ -142,14 +141,23 @@ const Game = (props) => {
 		playedCards.push(card);
 
 		if(player.id === 'player1'){
-			setPlayer1(player => {
-				return { ...player, playedCards: playedCards }
-			});
+			setPlayer1(player => ({...player, playedCards: playedCards}));
 		}else{
-			setPlayer2(player => {
-				return { ...player, playedCards: playedCards }
-			});
+			setPlayer2(player => ({...player, playedCards: playedCards}));
 		}
+	}
+
+	function cantarEnvido(){
+		console.log('cantarEnvido')
+	}
+	function cantarRealEnvido(){
+		console.log('cantarRealEnvido')
+	}
+	function cantarFaltaEnvido(){
+		console.log('cantarFaltaEnvido')
+	}
+	function cantarFlor(){
+		console.log('cantarFlor')
 	}
 
 	function bestCard(card1, card2){
@@ -174,6 +182,7 @@ const Game = (props) => {
 	}
 
 
+	//TODO: WORKS BUT NEED REFACTOR -VARIABLE NAMES-
 	function changePlayerTurn(card, player){
 		let bestCardData = {};
 		let playerTurnO = {};
@@ -210,40 +219,78 @@ const Game = (props) => {
 			}
 		}
 		
-		setHandData(handData => {
-      return { ...handData, turn: playerTurnO, lastCardPlayed: playerTurnO1 }
-    });
+		setHandData(handData => ({...handData, turn: playerTurnO, lastCardPlayed: playerTurnO1}));
 
 	}
 
 	return (
 
-      <div className="game">
-				{!gameData.loaded && <Button variant="contained" onClick={() => initGame()}>Iniciar juego</Button>}
+		<div>		
+			{!gameData.loaded && <Grid item xs={12}><Button variant="contained" onClick={() => initGame()}>Iniciar juego</Button></Grid>}
 
-				<BoardCards 
-					player = {player1} 
-					playCard = {playCard}
-					handData = {handData}
-				/>
-				
-				<PlayedCards 
-					player = {player1} 
-				/>
-				
-				<PlayedCards 
-					player = {player2} 
-				/>
-				
-				<BoardCards 
-					player = {player2} 
-					playCard = {playCard}
-					handData = {handData}
-				/>
+			{gameData.loaded && 
+
+				<Grid
+				container
+				direction="row"
+				style={{ minHeight: '100vh' }}
+			>
+				<Grid item xs={12} lg={5}>
+					<BoardCards 
+						player = {player1} 
+						playCard = {playCard}
+						handData = {handData}
+					/>
+					
+					<PlayedCards 
+						player = {player1} 
+					/>
+					
+					<PlayedCards 
+						player = {player2} 
+					/>
+					
+					<BoardCards 
+						player = {player2} 
+						playCard = {playCard}
+						handData = {handData}
+					/>
+				</Grid>
+
+				<Grid item xs={0} lg={1}></Grid>
+
+
+				<Grid item xs={12} lg={6}>
+					
+					<CommandControl 
+						handData = {handData}
+						player = {player1}
+						cantarEnvido = {cantarEnvido}
+						cantarRealEnvido = {cantarRealEnvido}
+						cantarFaltaEnvido = {cantarFaltaEnvido}
+						cantarFlor = {cantarFlor}
+					/>
+
+					<Log>
+
+					</Log>
+
+					<CommandControl 
+						handData = {handData}
+						player = {player2}
+						cantarEnvido = {cantarEnvido}
+						cantarRealEnvido = {cantarRealEnvido}
+						cantarFaltaEnvido = {cantarFaltaEnvido}
+						cantarFlor = {cantarFlor}
+					/>
+					
+				</Grid>
+			</Grid>
 			
-			</div>
+		}
 
-  );
+	</div>
+);
 
 };
 	
